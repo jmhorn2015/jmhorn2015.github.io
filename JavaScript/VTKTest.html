@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<!--VTK.js test render. By Jenna Horn-->
+	<head>
+		<title>Made in VTK.js</title>
+		<style>
+			body {
+			margin: 0; 
+			background-color:black;
+			color:grey;
+			text-align:center;
+			}
+			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+			}
+		</style>
+	</head>
+<body>
+		<!--UI implementation-->
+		<div id="info">G to Grow, S to Shrink, and R to Reset.<br/>
+		Hold click and drag to look around.
+		</div>
+<script type="text/javascript" src="https://unpkg.com/@babel/polyfill@7.0.0/dist/polyfill.js"></script>
+<script type="text/javascript" src="https://unpkg.com/vtk.js"></script>
+<script type="text/javascript">
+  //Scene and Object Setup. Depth filter is default. One line and one plane.
+  var fullScreenRenderer = vtk.Rendering.Misc.vtkFullScreenRenderWindow.newInstance({background : [0,0,0],});
+  var actor              = vtk.Rendering.Core.vtkActor.newInstance();
+  var mapper             = vtk.Rendering.Core.vtkMapper.newInstance();
+  var actor2             = vtk.Rendering.Core.vtkActor.newInstance();
+  var mapper2            = vtk.Rendering.Core.vtkMapper.newInstance();
+  var line               = vtk.Filters.Sources.vtkLineSource.newInstance();
+  var plane              = vtk.Filters.Sources.vtkPlaneSource.newInstance();
+  
+  //line
+  actor.getProperty().setColor(255,0,0);
+  actor.setMapper(mapper);
+  mapper.setInputConnection(line.getOutputPort());
+  
+  //plane
+  actor2.getProperty().setColor(255,255,255);
+  actor2.setPosition(-1,-1,-1);
+  actor2.setScale(2,2,0);
+  actor2.setMapper(mapper2);
+  mapper2.setInputConnection(plane.getOutputPort());
+
+  var renderer = fullScreenRenderer.getRenderer();
+  renderer.addActor(actor);
+  renderer.addActor(actor2);
+  renderer.resetCamera();
+
+  var renderWindow = fullScreenRenderer.getRenderWindow();
+  renderWindow.render();
+  
+  //Key handler
+  document.addEventListener('keydown', keyDownHandler, false);
+ function keyDownHandler(event){
+		var point1 = line.getPoint1();
+		var point2 = line.getPoint2();
+		var e = event.keyCode;
+		if (e == 71) {
+			point1[0] -= .03;
+			point2[0] += .03;
+			line.setPoint1(point1);
+			line.setPoint2(point2);	
+		}
+		else if (e == 83) {
+			if(point2[0] > .03){ 
+				point1[0] += .03;
+				point2[0] -= .03;
+				line.setPoint1(point1);
+				line.setPoint2(point2);
+				}
+		}
+		else if( e == 82){
+			point1[0] = -1;
+			point2[0] = 1;
+			line.setPoint1(point1);
+			line.setPoint2(point2);
+		}
+		else{
+			animate();
+		}
+		renderWindow.render();
+		
+	};
+	
+</script>
+</body>
+</html>
