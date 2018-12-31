@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<!--VTK.js Performance. By Jenna Horn-->
+	<head>
+		<title>VTK.js Light Test</title>
+		<style>
+			body {
+			margin: 0; 
+			background-color:black;
+			color:grey;
+			text-align:center;
+			}
+			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+			}
+			#gui {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+				text-align:right;
+			}
+		</style>
+	</head>
+<body>
+		<!--UI implementation-->
+		<div id="info">Light Render Demo for VTK.js<br/>
+		Ambient Light is default.
+		</div>
+		<div id="gui"></div>
+<script type="text/javascript" src="https://unpkg.com/@babel/polyfill@7.0.0/dist/polyfill.js"></script>
+<script type="text/javascript" src="https://unpkg.com/vtk.js"></script>
+<script src="js/build/dat.gui.js"></script>
+<script type="text/javascript">
+
+  //Scene and Object Setup. One Cylinder and one light.
+  var fullScreenRenderer = vtk.Rendering.Misc.vtkFullScreenRenderWindow.newInstance({background : [0,0,0],});
+  
+  //cylinder
+  var line= vtk.Filters.Sources.vtkLineSource.newInstance();
+  line.setPoint1(0,0,0);
+  line.setPoint2(2,0,0);
+  var actorT = vtk.Rendering.Core.vtkActor.newInstance();
+  var mapperT = vtk.Rendering.Core.vtkMapper.newInstance();
+  var tubeFilter = vtk.Filters.General.vtkTubeFilter.newInstance();
+  tubeFilter.setInputConnection(line.getOutputPort());
+  tubeFilter.setCapping(true);
+  tubeFilter.setNumberOfSides(32);
+  mapperT.setInputConnection(tubeFilter.getOutputPort());
+  actorT.setMapper(mapperT);
+  
+  var plane = vtk.Filters.Sources.vtkPlaneSource.newInstance();
+  var actorP = vtk.Rendering.Core.vtkActor.newInstance();
+  var mapperP = vtk.Rendering.Core.vtkMapper.newInstance();
+  mapperP.setInputConnection(plane.getOutputPort());
+  actorP.setMapper(mapperP);
+  actorP.setPosition(-4,-5,-4);
+  actorP.setScale(10,10,10);
+  
+ 
+ //light
+  var lights = vtk.Rendering.Core.vtkLight.newInstance();
+  lights.setPosition(5,5,5);
+  lights.setLightTypeToSceneLight();
+  lights.setSwitch(false);
+  
+  var lighth = vtk.Rendering.Core.vtkLight.newInstance();
+  lighth.setLightTypeToHeadLight();
+  lighth.setSwitch(false);
+  
+  var lightc = vtk.Rendering.Core.vtkLight.newInstance();
+  lightc.setLightTypeToCameraLight();
+  lightc.setSwitch(false);
+
+  var renderer = fullScreenRenderer.getRenderer();
+  var windowRender = fullScreenRenderer.getRenderWindow();
+  renderer.addActor(actorT);
+  renderer.addActor(actorP);
+  renderer.addLight(lights);
+  renderer.addLight(lighth);
+  renderer.addLight(lightc);
+  renderer.resetCamera();
+  windowRender.render();
+  
+	var gui = new dat.GUI({height : 5 * 32 - 1});
+	var params = {
+		SceneLight: false,
+		HeadLight: false,
+		CameraLight: false,
+	};
+	function onOff(x){
+		if(x.getSwitch()){
+			x.setSwitch(false);
+		}
+		else{
+			x.setSwitch(true);
+		}
+		windowRender.render();
+	};
+	gui.add(params, 'SceneLight').onChange(function() {
+		onOff(lights);
+	});
+	gui.add(params, 'HeadLight').onChange(function() {
+		onOff(lighth);
+	});
+	gui.add(params, 'CameraLight').onChange(function() {
+		onOff(lightc);
+	});
+	
+</script>
+</body>
+</html>

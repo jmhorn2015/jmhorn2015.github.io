@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<!--VTK.js Performance. By Jenna Horn-->
+	<head>
+		<title>VTK.js Performance</title>
+		<style>
+			body {
+			margin: 0; 
+			background-color:black;
+			}
+			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+				color:grey;
+				text-align:center;
+			}
+			#gui {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+				color:grey;
+				text-align:right;
+				
+			}
+		</style>
+	</head>
+<body>
+		<!--UI implementation-->
+		<div id="info">G to add Cylinders and R to Reset.<br/>
+		Hold click and drag to look around.
+		</div>
+		<div id="gui"></div>
+<script type="text/javascript" src="https://unpkg.com/@babel/polyfill@7.0.0/dist/polyfill.js"></script>
+<script type="text/javascript" src="https://unpkg.com/vtk.js"></script>
+<script type="text/javascript">
+	var incr = 9;
+	var trueNum = 1;
+	var xVal = 1;
+	var yVal = 0;
+	var zVal = 0;
+
+  //Scene and Object Setup. One Cylinder and one light.
+  var fullScreenRenderer = vtk.Rendering.Misc.vtkFullScreenRenderWindow.newInstance({background : [0,0,0],});
+  
+  //cylinder
+  var line= vtk.Filters.Sources.vtkLineSource.newInstance();
+  line.setPoint1(0,0,0);
+  line.setPoint2(2,0,0);
+  var actorT = vtk.Rendering.Core.vtkActor.newInstance();
+  var mapperT = vtk.Rendering.Core.vtkMapper.newInstance();
+  var tubeFilter = vtk.Filters.General.vtkTubeFilter.newInstance();
+  tubeFilter.setInputConnection(line.getOutputPort());
+  tubeFilter.setCapping(true);
+  tubeFilter.setNumberOfSides(32);
+  mapperT.setInputConnection(tubeFilter.getOutputPort());
+  actorT.setMapper(mapperT);
+ 
+ //light
+  var light = vtk.Rendering.Core.vtkLight.newInstance();
+  light.setPosition(50,50,50);
+
+  var renderer = fullScreenRenderer.getRenderer();
+  renderer.addActor(actorT);
+  renderer.addLight(light);
+  renderer.resetCamera();
+
+  //increment gui
+  var guiText = "Increment: " + trueNum;
+  document.getElementsByTagName('div')[1].innerHTML = guiText;
+  var renderWindow = fullScreenRenderer.getRenderWindow();
+  
+  //FPS GUI
+  var fps = vtk.Interaction.UI.vtkFPSMonitor.newInstance();
+  var fpsCont = fps.getFpsMonitorContainer();
+  fpsCont.style.position = 'absolute';
+  fpsCont.style.background = 'rgba(255,255,255,0.5)';
+  fps.setContainer(document.querySelector('body'));
+  fps.setRenderWindow(renderWindow);
+  renderWindow.render();
+
+  
+  //function to add cylinders to render
+  	var addCyl = function (){
+		for (var x = 0; x < incr; x++) {
+			//New Cylinder
+			var lineN= vtk.Filters.Sources.vtkLineSource.newInstance();
+			var Nactor = vtk.Rendering.Core.vtkActor.newInstance();
+			var Nmapper = vtk.Rendering.Core.vtkMapper.newInstance();
+			var NtubeFilter = vtk.Filters.General.vtkTubeFilter.newInstance();
+			NtubeFilter.setInputConnection(lineN.getOutputPort());
+			NtubeFilter.setCapping(true);
+			NtubeFilter.setNumberOfSides(32);
+			Nmapper.setInputConnection(NtubeFilter.getOutputPort());
+			Nactor.setMapper(Nmapper);
+			
+			//Increments the position of new cylinder
+			if(xVal>9){
+				yVal+= 1;
+				xVal = 0;
+			}
+			if(yVal>9){
+				zVal+= 1;
+				yVal = 0;
+			}
+			lineN.setPoint1(xVal*3,yVal*3, zVal*3);
+			lineN.setPoint2(xVal*3 + 2,yVal*3, zVal*3);
+			xVal+= 1;
+			renderer.addActor(Nactor);
+		}
+	};
+  //Key handler
+  document.addEventListener('keydown', keyDownHandler, false);
+ function keyDownHandler(event){
+		var e = event.keyCode;
+		if (e == 71) {
+			addCyl();
+			trueNum += incr;
+			if(trueNum < 100){
+				incr*=10;
+			}
+			else{
+				incr = 100;
+			}
+		}
+		else if( e == 82){
+			renderer.removeAllViewProps();
+			renderer.addActor(actorL);
+			renderer.addActor(actorT);
+			renderer.addLight(light);
+			incr = 9;
+			trueNum = 1;
+			xVal = 1;
+			yVal = 0;
+			zVal = 0;
+		}
+		else{
+			animate();
+		}
+		guiText = "Increment: " + trueNum;
+		document.getElementsByTagName('div')[1].innerHTML = guiText;
+		renderWindow.render();
+		
+	};
+	
+</script>
+</body>
+</html>

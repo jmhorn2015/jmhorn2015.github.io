@@ -1,0 +1,127 @@
+<html>
+	<!--Three.js test render. By Jenna Horn-->
+	<head>
+		<title>three.js Light Test</title>
+		<style>
+			body {
+			margin: 0; 
+			background-color:black;
+			color:grey;
+			text-align:center;
+			}
+			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+			}
+		</style>
+	</head>
+	<body>
+		<!--UI implementation-->
+		<div id="info">Light Render Demo for three.js</br> Default is Ambient Light at 0x999999
+		</div>
+		<!--Import for Libraries-->
+		<script src="js/three.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/build/dat.gui.js"></script>
+		<script>
+			//Scene Setup
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMapSoft = true;
+			document.body.appendChild( renderer.domElement );
+			renderer.gammaInput = true;
+			renderer.gammaOutput = true;
+
+			//Object Setup. Cylinder, Plane, and 2 Lights.
+			var geometry = new THREE.CylinderGeometry( 1, 1, 4, 32);
+			var material = new THREE.MeshPhongMaterial( { color: 0xff0000, dithering: true } );
+			var cyl = new THREE.Mesh( geometry, material );
+			cyl.position.set(0, 0, 0);
+			cyl.castShadow = true;
+			scene.add( cyl );
+			
+						//Object Setup. Cylinder, Plane, and 2 Lights.
+			var geometry2 = new THREE.PlaneGeometry( 200,200);
+			var material2 = new THREE.MeshPhongMaterial( { color: 0xffffff, dithering: true } );
+			var plane = new THREE.Mesh( geometry2, material2 );
+			plane.position.set(0, -5, 0);
+			plane.rotation.set(-90,0,0);
+			plane.receiveShadow = true;
+			scene.add( plane );
+						
+			var light = new THREE.AmbientLight(0x999999);
+			scene.add(light);
+			
+			var pl = new THREE.PointLight(0x000000);
+			pl.position.set(-1,10,1);
+			pl.castShadow = true;
+			scene.add(pl);
+			var dl = new THREE.DirectionalLight(0x000000);
+			dl.castShadow = true;
+			dl.position.set(1,10,-1);
+			scene.add(dl);
+			var hl = new THREE.HemisphereLight(0x000000, 0x0000ff, 1);
+			hl.position.set(2,20,2);
+			hl.castShadow = true;
+			scene.add(hl);
+			var sl = new THREE.SpotLight(0x000000);
+			sl.position.set(1,10,1);
+			sl.castShadow = true;
+			sl.shadow.camera.near = 10;
+			sl.shadow.camera.far = 200;
+			sl.penumbra = 0.5;
+			scene.add(sl);
+			
+			var gui = new dat.GUI({height : 5 * 32 - 1});
+			var params = {
+				PointLight: false,
+				DirectionalLight: false,
+				HemisphereLight: false,
+				SpotLight: false
+			};
+			function onOff(x){
+				if(x.color.equals(new THREE.Color(0x000000))){
+					x.color = new THREE.Color(0xffffff);
+				}
+				else{
+					x.color = new THREE.Color(0x000000);
+				}
+			};
+			gui.add(params, 'PointLight').onChange(function() {
+				onOff(pl);
+			});
+			gui.add(params, 'DirectionalLight').onChange(function() {
+				onOff(dl);
+			});
+			gui.add(params, 'HemisphereLight').onChange(function() {
+				onOff(hl);
+			});
+			gui.add(params, 'SpotLight').onChange(function() {
+				onOff(sl);
+			});
+			
+			//Orbit Controls setup
+			var controls = new THREE.TrackballControls( camera );
+			controls.enableKeys = false;
+			
+			camera.position.set( 0, 0, 5);
+			controls.update();
+			
+			//Animator to slowly rotate cylinder
+			var animate = function () {
+				requestAnimationFrame( animate );
+				cyl.rotation.x += 0.01;
+				cyl.rotation.y += 0.01;
+				cyl.rotation.z += .001;
+				controls.update();
+				renderer.render( scene, camera );
+			};
+			animate();
+		</script>
+	</body>
+</html>

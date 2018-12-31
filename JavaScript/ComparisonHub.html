@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Render Comparison Hub</title>
+<link href="css/simpleGridTemplate.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<!-- Main Container -->
+<div class="container"> 
+  <!-- Header -->
+  <header class="header">
+    <h4 class="logo">VTK.js vs Three.js</h4>
+  </header>
+  <!-- Hero Section -->
+  <section class="intro">
+    <div class="column">
+      <h3>Jenna Horn</h3>
+    <img src="images/icon.png" alt="" class="profile"> </div>
+    <div class="column">
+      <p>Hello, web browser! This is a project that I am doing to better understand the 3D rendering capabilities of both VTK.js and Three.js. My small demo projects are shown below. </p>
+      <p>Summary:</p>
+      <p>Three.js is a great program for 3D art graphics and video game style things. The way the library handles actors and lighting is very convenient. VTK is better for model viewing and algorithm rendering, as its performance with multiple actors is lacking as well as the ability for shadow mapping. </p>
+    </div>
+  </section>
+  <!-- Stats Gallery Section -->
+  <div class="gallery">
+    <div class="thumbnail"> <a href="pages/ThreeFirstTest.html"><img src="images/TFT.png" alt="" width="2000" class="cards"/></a>
+      <h4>Three First Test</h4>
+      <p class="tag">Make a cylinder in Three.js</p>
+      <p class="text_column">I was able to construct a cylinder and a plane in the renderer as well as change the color of the cylinde, make it grow and shrink, and have it freely rotate.</p>
+    </div>
+    <div class="thumbnail"> <a href="pages/VTKFirstTest.html"><img src="images/VFT.png" alt="" width="2000" class="cards"/></a>
+      <h4>VTK First Test</h4>
+      <p class="tag">Make a cylinder in VTK.js</p>
+      <p class="text_column">Since there is no direct Cylinder source, I rendered a line over a plane, made it grow and shrink, and also changed its color. I discovered the Tube Filter later and used it to make the cylinders in the later programs.</p>
+    </div>
+    <div class="thumbnail"> <a href="pages/ThreePerformance.html"><img src="images/TP.png" alt="" width="2000" class="cards"/></a>
+      <h4>Three Performance Test</h4>
+      <p class="tag">How many Cylinders can be rendered in the window?</p>
+      <p class="text_column">This program allowed me to generate more cylinders into the scene to test what the renderer could do. I was also able to randomise the colors as they spawned to help differentiate them better.</p>
+    </div>
+    <div class="thumbnail"> <a href="pages/VTKPerformance.html"><img src="images/VP.png" alt="" width="2000" class="cards"/></a>
+      <h4>VTK Performance Test</h4>
+      <p class="tag">How many Cylinders can be rendered in the window?</p>
+      <p class="text_column">This program can also generate more cylinders and test performance, but I opted out of randomising the colors because I would lose shadow rendering on them.</p>
+    </div>
+  </div>
+  <div class="gallery">
+    <div class="thumbnail"> <a href="pages/ThreeLight.html"><img src="images/TL.png" alt="" width="2000" class="cards"/></a>
+      <h4>Three Light Test</h4>
+      <p class="tag">How do the different light types render?</p>
+      <p class="text_column">This allows the user to test the 4 different types of light rendering as well as see shadows cast onto other objects.</p>
+    </div>
+    <div class="thumbnail"> <a href="pages/VTKLight.html"><img src="images/VL.png" alt="" width="2000" class="cards"/></a>
+      <h4>VTK Light Test</h4>
+      <p class="tag">How do the different light types render?</p>
+      <p class="text_column">This program tests the 3 different types of light rendering, but I was not able to cast shadows due to lack of vtk.js documentation.</p>
+    </div>
+    <div class="thumbnail"> <a href="pages/Three.pdf"><img src="images/bkg_06.jpg" alt="" width="2000" class="cards"/></a>
+      <h4>Three.js FlowChart</h4>
+      <p class="tag"></p>
+      <p class="text_column">This is a layout of how things interact in a Three.js Scene.</p>
+    </div>
+    <div class="thumbnail"> <a href="pages/VTK.pdf"><img src="images/bkg_06.jpg" alt="" width="2000" class="cards"/></a>
+      <h4>VTK.js FlowChart</h4>
+      <p class="tag"></p>
+      <p class="text_column">This is a layout of a scene for VTK.js.</p>
+    </div>
+  </div>
+  <!-- Footer Section -->
+  <footer id="contact">
+    <p class="hero_header">Thank you for Visiting!</p>
+	  <a href = "https://jmhorn2015.github.io/website.html"><div class="button">Back to Home</div></a>
+  </footer>
+  <!-- Copyrights Section -->
+  <div class="copyright">&copy;2018 - <strong>Jenna Horn</strong></div>
+</div>
+<!-- Main Container Ends -->
+</body>
+</html>

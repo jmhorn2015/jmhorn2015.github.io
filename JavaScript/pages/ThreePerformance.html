@@ -1,0 +1,146 @@
+<html>
+	<!--Three.js Performance Test. By Jenna Horn-->
+	<head>
+		<title>three.js Performance Test</title>
+		<style>
+			body {
+			margin: 0; 
+			background-color:black;
+			color:black;
+			text-align:center;
+			}
+			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+			}
+			#gui {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+				text-align:right;
+			}
+		</style>
+	</head>
+	<body>
+		<!--UI implementation-->
+		<div id="info">G to Add Cylinders and R to Reset.<br/>
+		Hold click and drag to look around.
+		</div>
+		<div id="gui"></div>
+		<!--Import for Libraries-->
+		<script src="js/three.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script src="js/dat.gui.min.js"></script>
+		<script>
+			var incr = 9;
+			var trueNum = 1;
+			var container, stats, gui;
+			var xVal = 1;
+			var yVal = 0;
+			var zVal = 0;
+			
+			// STATS
+			container = document.createElement( 'div' );
+			document.body.appendChild( container );
+			stats = new Stats();
+			container.appendChild( stats.dom );
+
+			//Scene Setup
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			scene.background = new THREE.Color('white');
+			container.appendChild( renderer.domElement );
+
+			//Object Setup. Cylinder and 2 Lights.
+			var geometry = new THREE.CylinderGeometry( 1, 1, 4, 32);
+			var material = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+			var cyl = new THREE.Mesh( geometry, material );
+			cyl.position.set(0, 0, 0);
+			scene.add( cyl );
+						
+			//lights			
+			var light = new THREE.AmbientLight(0x404040);
+			scene.add(light);
+			
+			var light2 = new THREE.PointLight(0xffffff);
+			light2.position.set( 50, 50, 50 );
+			scene.add(light2);
+			
+			//Trackball Controls setup
+			var controls = new THREE.TrackballControls( camera );
+			controls.enableKeys = false;
+			
+			camera.position.set( 0, 0, 40);
+			controls.update();
+			
+			//Function to add cylinders to the scene
+			var addCyl = function (){
+				for (var x = 0; x < incr; x++) {
+					var newcyl = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ));
+					if(xVal>9){
+						yVal+= 1;
+						xVal = 0;
+					}
+					if(yVal>9){
+						zVal+= 1;
+						yVal = 0;
+					}
+					newcyl.position.set(parseFloat(xVal*4),parseFloat(yVal*4), parseFloat(zVal*4));
+					xVal+= 1;
+					scene.add(newcyl);
+				}
+			};
+		
+			//Keyboard reader to transform Cylinder
+			document.addEventListener('keydown', keyDownHandler, false);
+			function keyDownHandler(event){
+				var e = event.keyCode;
+				if (e == 71) {
+					addCyl();
+					trueNum += incr;
+					if(trueNum < 100){
+					incr*=10;
+					}
+					else{
+					incr = 100;
+					}
+				}
+
+				else if (e == 82) {
+					while(scene.children.length > 0){ 
+						scene.remove(scene.children[0]); 
+					}
+					
+					scene.add( cyl);
+					scene.add(light);
+					scene.add(light2);
+					incr = 9;
+					trueNum = 1;
+					xVal = 1;
+					yVal = 0;
+					zVal = 0;
+				}
+				else{
+					controls.update();
+				}
+			};
+			//Animator to slowly rotate cylinder
+			var animate = function () {
+				//increment gui
+				var guiText = "Increment: " + trueNum;
+				document.getElementsByTagName('div')[1].innerHTML = guiText;
+				requestAnimationFrame( animate );
+				controls.update();
+				stats.begin();
+				renderer.render( scene, camera );
+				stats.end();
+			};
+			animate();
+		</script>
+	</body>
+</html>
