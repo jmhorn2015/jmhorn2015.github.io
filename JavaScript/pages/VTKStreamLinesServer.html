@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<!--VTK.js Line Renders. By Jenna Horn-->
+	<head>
+		<title>VTK.js Line Renders</title>
+		<style>
+			body {
+			margin: 0; 
+			background-color:white;
+			color:grey;
+			text-align:center;
+			}
+			canvas { width: 100%; height: 100% }
+			#info {
+				position: absolute;
+				top: 5px; width: 100%;
+				z-index: 100;
+				text-align:center;
+			}
+		</style>
+	</head>
+<body>
+<script type="text/javascript" src="https://unpkg.com/@babel/polyfill@7.0.0/dist/polyfill.js"></script>
+<script type="text/javascript" src="https://unpkg.com/vtk.js"></script>
+<div id="info">Zoom out to see all the lines with the scroll wheel or pinched fingers.<br/>Made by Jenna Horn
+</div>
+<script>
+  //Scene Setup
+  var fullScreenRenderer = vtk.Rendering.Misc.vtkFullScreenRenderWindow.newInstance({background : [0,0,0],});
+  //WireBox
+  var box = vtk.Filters.Sources.vtkCubeSource.newInstance({ xLength: 128, yLength: 32, zLength: 64 });
+  var actorP = vtk.Rendering.Core.vtkActor.newInstance();
+  var mapperP = vtk.Rendering.Core.vtkMapper.newInstance();
+  mapperP.setInputConnection(box.getOutputPort());
+  actorP.setMapper(mapperP);
+  actorP.setPosition(64, 16, 32);
+  actorP.getProperty().setRepresentationToWireframe();
+  //Rendering
+   var renderer = fullScreenRenderer.getRenderer();
+  var windowRender = fullScreenRenderer.getRenderWindow();
+  //Axes
+  var renderWindowInteractor = vtk.Rendering.Core.vtkRenderWindowInteractor.newInstance();
+  renderWindowInteractor.setRenderWindow(windowRender);
+  var axes = vtk.Rendering.Core.vtkAxesActor.newInstance();
+  var widget = vtk.Interaction.Widgets.vtkOrientationMarkerWidget.newInstance({
+		actor: axes,
+		interactor: windowRender.getInteractor(),
+	});
+widget.setEnabled(true);
+widget.setViewportCorner(vtk.Interaction.Widgets.vtkOrientationMarkerWidget.Corners.BOTTOM_LEFT);
+widget.setViewportSize(0.15);
+widget.setMinPixelSize(100);
+widget.setMaxPixelSize(300);
+
+  renderer.addActor(actorP);
+  renderer.resetCamera();
+  windowRender.render();
+// import coding
+var num = prompt("How many lines would you like to generate?", "3");
+num = parseInt(num);
+while ( isNaN(num) | num < 1) {
+	num = prompt("Invalid number: Please Retry", "5");
+	num = parseInt(num);
+}
+	var text = "epis";
+	var url = "http://davim.cs.uh.edu/flowvis/api.php?service=getStreamline&numb=" + num;
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function() {
+		text = this.responseXML.body.innerHTML;
+		console.log(text);
+		GenerateLines();
+	}
+	xhr.open("GET", url);
+	xhr.responseType = "document";
+	xhr.send();
+	function GenerateLines(){
+	var lineData = [];
+	var prevPos = 0;
+	var tempVal = 0;
+	var counter = 0;
+	for(var a = 0; a < text.length; a++){
+		if(text.charAt(a)==' ' & text.charAt(a-1) != ','){
+		    tempVal = Number(text.substring(prevPos, a));
+			prevPos = a+1;
+			lineData[counter] = tempVal;
+			counter++;
+		}
+		
+		else if(text.charAt(a) == ','){
+			tempVal = Number(text.substring(prevPos, a));
+			prevPos = a+1;
+			lineData[counter] = tempVal;
+			counter++;
+		    var pointData = new Float32Array(3 * (counter + 1));
+	        var verts = new Uint32Array(2 * (counter + 1));
+	        var lines = new Uint32Array(counter + 2);
+            lines[0] = counter + 1;
+            var scalarsData = new Float32Array(counter + 1);
+            var scalars = vtk.Common.Core.vtkDataArray.newInstance({
+	            name: 'Scalars',
+	            values: scalarsData,
+            });
+	    	var polyData = vtk.Common.DataModel.vtkPolyData.newInstance();
+	    	var points = vtk.Common.Core.vtkPoints.newInstance();
+	    	points.setNumberOfPoints(counter + 1);
+	    	for (let i = 0; i < counter + 1; ++i) {
+	    	    for(let j=0; j<3; j++){
+	    	        pointData[3*i+j] = lineData[3*i+j];
+	    	    }
+    		  scalarsData[i] = i * 0.01;
+    		  verts[i] = 1;
+    		  verts[i + 1] = i;
+    		  lines[i + 1] = i;
+	    	}
+    		points.setData(lineData);
+    		polyData.setPoints(points);
+    		polyData.getVerts().setData(verts);
+	    	polyData.getLines().setData(lines);
+	    	polyData.getPointData().setScalars(scalars);
+  			
+			var tuber = vtk.Filters.General.vtkTubeFilter.newInstance();
+			tuber.setInputData(polyData);
+			tuber.setInputArrayToProcess(0, 'Scalars', 'PointData', 'Scalars');
+			
+  	    	var mapper = vtk.Rendering.Core.vtkMapper.newInstance();
+  	    	mapper.setInputConnection(tuber.getOutputPort());
+  		    var actor = vtk.Rendering.Core.vtkActor.newInstance();
+	    	actor.setMapper(mapper);
+		    renderer.addActor(actor);
+			
+			var mapper2 = vtk.Rendering.Core.vtkMapper.newInstance();
+  	    	mapper2.setInputData(polyData);
+  		    var actor2 = vtk.Rendering.Core.vtkActor.newInstance();
+	    	actor2.setMapper(mapper2);
+		    renderer.addActor(actor2);
+		    lineData = [];
+		    counter = 0;
+			prevPos = a+1;
+		}
+	}
+	renderer.resetCamera();
+	windowRender.render();
+	}
+
+</script>
+<div></div>
+</body>
+</html>
