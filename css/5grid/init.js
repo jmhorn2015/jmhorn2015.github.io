@@ -426,7 +426,7 @@
 
 				// Body
 					body	
-						.css('overflow', (_isTouch ? 'hidden' : 'visible'))
+						.css('overflow', 'visible')
 						.bind('5grid_toggleNav', function() {
 							if (mobileUI_site_nav.isOpen_5grid)
 								body.trigger('5grid_closeNav');
@@ -495,6 +495,12 @@
 			// Remove address bar
 				if (_opts['mobileUI.hideAddressBar'] == 1 && _window.scrollTop() == 0)
 					window.scrollTo(0, 1);
+				
+			// Remove Margins on Buttons
+				jQuery('.button-style').each(function() {
+					var t = jQuery(this);
+					t.css('margin-left','0px');
+				});
 		});
 
 /*********************/
